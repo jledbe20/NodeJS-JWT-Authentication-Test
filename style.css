@@ -1,0 +1,9 @@
+
+body {
+    background-color: gray;
+}
+
+.container-fluid {
+    background-color: black;
+    width: 75%;
+}
