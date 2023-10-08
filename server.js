@@ -11,7 +11,7 @@ const path = require('path');
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Headers', 'Content-type, Authorization');
-    console.log(req.headers.authorization); // print the Authorization header
+    // console.log(req.headers.authorization); // print the Authorization header
     next();
 });
 
@@ -76,8 +76,9 @@ app.get('/api/dashboard', jwtMiddleware, (req, res) => {
                     Secret content that only those deemed worthy can see.<br></br>
                 </div>
                 <div>
-                    <button onclick="goToSettings()">Settings</button>
-                    <button onclick="logout()">Logout</button>
+                    <button class="btn btn-secondary" role="button" onclick="goToSettings()">Settings</button>
+                    <button class="btn btn-secondary" role="button" onclick="logout()">Logout</button>
+                    <a href="/" class="btn btn-secondary" role="button">Go Back</a>
                 </div>
             `
     });
@@ -88,7 +89,11 @@ app.get('/api/settings', jwtMiddleware, (req, res) => {
     // console.log(req);
     res.json({
         success: true,
-        myContent: 'This is the settings page.'
+        myContent: `
+        This is the settings page.</br></br>
+
+        <a href="/" class="btn btn-secondary" role="button">Go Back</a>
+    `
     });
 });
 
