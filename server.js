@@ -29,6 +29,8 @@ const jwtMiddleware = expressJwt({
     algorithms: ['HS256']
 });
 
+const JWT_TIMEOUT = process.env.JWT_TIMEOUT || '3m'; // default to 3 minutes
+
 let users = [
     {
         id: 1,
@@ -51,7 +53,8 @@ app.post('/api/login', (req, res) => {
 
     // if user found, send token
     if (user) {
-        let token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '3m' });
+        let jwtTimeout = '1m';
+        let token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: JWT_TIMEOUT });
         return res.json({
             success: true,
             err: null,
@@ -79,7 +82,7 @@ app.get('/api/dashboard', jwtMiddleware, (req, res) => {
                 <div>
                     <button class="btn btn-secondary" role="button" onclick="goToSettings()">Settings</button>
                     <button class="btn btn-secondary" role="button" onclick="logout()">Logout</button>
-                    <a href="/" class="btn btn-secondary" role="button">Go Back</a>
+                    <a href="/" class="btn btn-secondary" role="button"onclick="goHome()">Go Back</a>
                 </div>
             `
     });
@@ -94,9 +97,15 @@ app.get('/api/settings', jwtMiddleware, (req, res) => {
         This is the settings page.</br></br>
         <button class="btn btn-secondary" role="button" onclick="getDashboard()">Dashboard</button>
         <button class="btn btn-secondary" role="button" onclick="logout()">Logout</button>
-        <a href="/" class="btn btn-secondary" role="button">Go Back</a>
+        <a href="/" class="btn btn-secondary" role="button" onclick="goHome()">Go Back</a>
     `
     });
+});
+
+// send JWT timeout value to front end (for display)
+app.get('/api/jwt-timeout', (req, res) => {
+    console.log("sending jwt timeout value: ", JWT_TIMEOUT);
+    return res.send(JWT_TIMEOUT);
 });
 
 app.get('/', (req, res) => {

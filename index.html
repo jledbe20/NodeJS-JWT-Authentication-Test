@@ -24,7 +24,7 @@
             </div>
 
             <div class="row">
-                <label for="password">password</label>
+                <label for="password">Password</label>
                 <input type="password" name="password" id="password">
             </div></br>
 
@@ -91,9 +91,15 @@
                 if (res && res.data && res.data.success) {
                     document.querySelector('h1.row').innerHTML = 'Dashboard';
                     document.querySelector('main').innerHTML = res.data.myContent;
-                    // document.getElementById('settingsButton').style.display = 'inline-block';
+                }
+            }).catch(error => {
+                if (error.response && error.response.status === 401) {
+                    tokenExpired();
                 }
             });
+
+            // update URL without reloading page:
+            history.pushState({ page: 'Dashboard' }, 'Dashboard', '/dashboard');
         }
 
         function goToSettings() {
@@ -109,12 +115,43 @@
                     document.querySelector('main').innerHTML = res.data.myContent;
                     // document.getElementById('settingsButton').style.display = 'inline-block';
                 }
+            }).catch(error => {
+                if (error.response && error.response.status === 401) {
+                    tokenExpired();
+                }
             });
+
+            // update URL without reloading page:
+            history.pushState({ page: 'Settings' }, 'Settings', '/settings');
         }
 
         function logout() {
             localStorage.removeItem('jwt');
             window.location.href = '/';
+            document.querySelector('h1.row').innerHTML = 'Logged out! Login?';
+        }
+
+        function tokenExpired() {
+            axios.get('/api/jwt-timeout')
+                .then(res => {
+                    console.log("full response from /api/jwt-timeout:", res.data);
+
+                    let jwtTimeout = res.data.timeout;
+                    console.log("received jwt timeout value:", jwtTimeout);
+
+                    // alert('Logged out due to inactivity (' + jwtTimeout + ')');
+
+                    localStorage.removeItem('jwt');
+                    window.location.href = '/';
+                })
+                .catch(error => {
+                    console.error("Error fetching JWT timeout:", error);
+                    alert('Logged out due to inactivity.');
+
+                    // remove token and head home
+                    localStorage.removeItem('jwt');
+                    window.location.href = '/';
+                });
         }
 
         function updateButtonVisibility(token) {
@@ -131,6 +168,26 @@
             }
         }
 
+        window.addEventListener('popstate', function (event) {
+            if (event.state) {
+                switch (event.state.page) {
+                    case 'Settings':
+                        goToSettings();
+                        break;
+                    case 'Dashboard':
+                        getDashboard();
+                        break;
+                    default:
+                        goHome();
+                        break;
+                }
+            }
+        });
+
+        function goHome() {
+            // update URL without reloading page:
+            history.pushState({ page: 'Home' }, 'Home', '/home');
+        }
 
         function onLoad() {
             const token = localStorage.getItem('jwt');
