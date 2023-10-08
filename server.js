@@ -11,6 +11,7 @@ const path = require('path');
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Headers', 'Content-type, Authorization');
+    console.log(req.headers.authorization); // print the Authorization header
     next();
 });
 
@@ -19,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const PORT = 3000;
 
-// TODO: convert to env variable:
+// TO DO: convert to env variable:
 const secretKey = 'My super secret key';
 // console.log(expressJwt);
 const jwtMiddleware = expressJwt({
@@ -44,40 +45,50 @@ app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     // console.log('This is me', username, password);
     // res.json({ data: 'it works.'});
+    // Find a user that matches the username and password
+    const user = users.find(u => u.username === username && u.password === password);
 
-    for (let user of users) {
-        if (username == user.username && password == user.password) {
-            let token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '3m' });
-            res.json({
-                success: true,
-                err: null,
-                token
-            });
-            break;
-        }
-        else {
-            return res.status(401).json({
-                success: false,
-                token: null,
-                err: 'Username or password is incorrect.'
-            });
-        }
+    // if user found, send token
+    if (user) {
+        let token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '3m' });
+        return res.json({
+            success: true,
+            err: null,
+            token
+        });
     }
+
+    // if no user found in list, err
+    return res.status(401).json({
+        success: false,
+        token: null,
+        err: 'Username or password is incorrect.'
+    });
 });
+
 
 app.get('/api/dashboard', jwtMiddleware, (req, res) => {
     // console.log(req);
     res.json({
         success: true,
-        myContent: 'Secret content that only those deemed worthy can see.'
+        myContent: `
+                <div>
+                    Secret content that only those deemed worthy can see.<br></br>
+                </div>
+                <div>
+                    <button onclick="goToSettings()">Settings</button>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            `
     });
 });
 
-app.get('/api/prices', jwtMiddleware, (req, res) => {
+
+app.get('/api/settings', jwtMiddleware, (req, res) => {
     // console.log(req);
     res.json({
         success: true,
-        myContent: 'This is the price: $4.99.'
+        myContent: 'This is the settings page.'
     });
 });
 
