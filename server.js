@@ -17,6 +17,7 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 
 const PORT = 3000;
 
@@ -73,7 +74,7 @@ app.get('/api/dashboard', jwtMiddleware, (req, res) => {
         success: true,
         myContent: `
                 <div>
-                    Secret content that only those deemed worthy can see.<br></br>
+                    Secret content that only those deemed worthy can see.</br></br>
                 </div>
                 <div>
                     <button class="btn btn-secondary" role="button" onclick="goToSettings()">Settings</button>
@@ -91,7 +92,8 @@ app.get('/api/settings', jwtMiddleware, (req, res) => {
         success: true,
         myContent: `
         This is the settings page.</br></br>
-
+        <button class="btn btn-secondary" role="button" onclick="getDashboard()">Dashboard</button>
+        <button class="btn btn-secondary" role="button" onclick="logout()">Logout</button>
         <a href="/" class="btn btn-secondary" role="button">Go Back</a>
     `
     });

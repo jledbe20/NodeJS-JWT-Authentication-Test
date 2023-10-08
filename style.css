@@ -4,6 +4,9 @@ body {
 }
 
 .container-fluid {
-    background-color: black;
-    width: 75%;
+    width: 35%;
+    margin: auto;
+}
+
+.btn-secondary {
 }
